@@ -188,3 +188,37 @@ test('child selector array', () => {
 
   expect(tree.toJSON()).toMatchSnapshot()
 })
+
+test('list of styles', () => {
+  const tree = renderer.create(
+    <div
+      css={[
+        css`
+          background-color: green;
+        `,
+        { color: 'white' }
+      ]}
+    />
+  )
+
+  expect(tree.toJSON()).toMatchSnapshot()
+})
+
+test('list of styles (with theming)', () => {
+  const tree = renderer.create(
+    <ThemeProvider theme={{ primary: 'yellow' }}>
+      <div
+        css={[
+          css`
+            background-color: green;
+          `,
+          theme => ({
+            color: theme.primary
+          })
+        ]}
+      />
+    </ThemeProvider>
+  )
+
+  expect(tree.toJSON()).toMatchSnapshot()
+})

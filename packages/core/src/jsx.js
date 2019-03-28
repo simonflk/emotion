@@ -17,7 +17,16 @@ let render = (cache, props, theme: null | Object, ref) => {
 
   let className = ''
 
-  let cssProp = theme === null ? props.css : props.css(theme)
+  let cssProp
+  if (theme === null) {
+    cssProp = props.css
+  } else if (typeof cssProp === 'function') {
+    cssProp = cssProp(theme)
+  } else if (Array.isArray(cssProp)) {
+    cssProp = cssProp.map(
+      cssItem => (typeof cssItem === 'function' ? cssItem(theme) : cssItem)
+    )
+  }
 
   // so that using `css` from `emotion` and passing the result to the css prop works
   // not passing the registered cache to serializeStyles because it would
@@ -93,7 +102,10 @@ let render = (cache, props, theme: null | Object, ref) => {
 
 let Emotion = withEmotionCache((props, cache, ref) => {
   // use Context.read for the theme when it's stable
-  if (typeof props.css === 'function') {
+  const requiresTheme = []
+    .concat(props.css)
+    .some(cssItem => typeof cssItem === 'function')
+  if (requiresTheme) {
     return (
       <ThemeContext.Consumer>
         {theme => render(cache, props, theme, ref)}
